@@ -1892,7 +1892,51 @@ Jimp.prototype.contain = function (w, h, alignBits, mode, cb) {
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
+Jimp.prototype.containWBackground = function (w, h, alignBits, mode, bg, cb) {
+    if ("number" != typeof w || "number" != typeof h)
+        return throwError.call(this, "w and h must be numbers", cb);
 
+    //permit any sort of optional parameters combination
+    switch (typeof alignBits) {
+        case 'string':
+            if ("function" == typeof mode && "undefined" == typeof cb) cb = mode;
+            mode = alignBits;
+            alignBits = null;
+        case 'function':
+            if ("undefined" == typeof cb) cb = alignBits;
+            mode = null;
+            alignBits = null;
+        default:
+            if ("function" == typeof mode && "undefined" == typeof cb) {
+                cb = mode;
+                mode = null;
+            }
+    }
+    
+    alignBits = alignBits || (Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE);
+    var hbits = ((alignBits) & ((1<<(3))-1));
+    var vbits = alignBits >> 3;
+
+    // check if more flags than one is in the bit sets
+    if(!(((hbits != 0) && !(hbits & (hbits - 1))) || ((vbits != 0) && !(vbits & (vbits - 1)))))
+        return throwError.call(this, "only use one flag per alignment direction", cb);
+
+    var align_h = (hbits >> 1); // 0, 1, 2
+    var align_v = (vbits >> 1); // 0, 1, 2
+
+    var f = (w/h > this.bitmap.width/this.bitmap.height) ?
+        h/this.bitmap.height : w/this.bitmap.width;
+    var c = this.clone().scale(f, mode);
+    
+    this.resize(w, h, mode);
+    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+        this.bitmap.data.writeUInt32BE(bg, idx);
+    });
+    this.blit(c, ((this.bitmap.width - c.bitmap.width) / 2) * align_h, ((this.bitmap.height - c.bitmap.height) / 2) * align_v);
+
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
 /**
  * Uniformly scales the image by a factor.
  * @param f the factor to scale the image by
