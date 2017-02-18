@@ -1892,7 +1892,7 @@ Jimp.prototype.contain = function (w, h, alignBits, mode, cb) {
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
-Jimp.prototype.containWBackground = function (w, h, alignBits, mode, bg, cb) {
+Jimp.prototype.containWBackground = function (w, h, bg, alignBits, mode, cb) {
     if ("number" != typeof w || "number" != typeof h)
         return throwError.call(this, "w and h must be numbers", cb);
 
@@ -1930,7 +1930,12 @@ Jimp.prototype.containWBackground = function (w, h, alignBits, mode, bg, cb) {
     
     this.resize(w, h, mode);
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
-        this.bitmap.data.writeUInt32BE(bg, idx);
+        if(bg) {
+            this.bitmap.data.writeUInt32BE(bg, idx);
+        } else {
+            this.bitmap.data.writeUInt32BE(this._background, idx);
+        }
+        
     });
     this.blit(c, ((this.bitmap.width - c.bitmap.width) / 2) * align_h, ((this.bitmap.height - c.bitmap.height) / 2) * align_v);
 
