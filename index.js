@@ -1930,6 +1930,7 @@ Jimp.prototype.containWBackground = function (w, h, bg, alignBits, mode, cb) {
 
     this.resize(w, h, mode);
     console.info('bg before calling scan', bg);
+    
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         if(bg) {
             this.bitmap.data.writeUInt32BE(bg, idx);
