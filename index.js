@@ -2146,7 +2146,8 @@ Jimp.prototype.getBuffer = function (mime, cb) {
     if (mime == Jimp.AUTO) { // allow auto MIME detection
         mime = this.getMIME();
     }
-
+    console.info('typeof cb: ', typeof cb);
+    console.info('function != typeof cb', 'function' != typeof cb);
     if ("string" != typeof mime)
         return throwError.call(this, "mime must be a string", cb);
     if ("function" != typeof cb)
