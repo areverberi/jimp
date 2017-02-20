@@ -538,7 +538,7 @@ Jimp.prototype._filterType = Jimp.PNG_FILTER_AUTO;
 Jimp.prototype._rgba = true;
 
 // Default colour to use for new pixels
-Jimp.prototype._background = 0xeeeeee00;
+Jimp.prototype._background = 0x00000000;
 
 // Default MIME is PNG
 Jimp.prototype._originalMime = Jimp.MIME_PNG;
@@ -1932,8 +1932,10 @@ Jimp.prototype.containWBackground = function (w, h, bg, alignBits, mode, cb) {
     console.info('bg before calling scan', bg);
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         if(bg) {
+          console.info('bg defined');
             this.bitmap.data.writeUInt32BE(bg, idx);
         } else {
+          console.info('bg undefined');
             this.bitmap.data.writeUInt32BE(this._background, idx);
         }
 
